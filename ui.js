@@ -16,7 +16,7 @@
     return f.esEntera() && !f.esNegativa() ? fracHTML(f) : `(${fracHTML(f)})`;
   }
 
-  const variableHTML = j => `x<sub>${j + 1}</sub>`;
+  const variableHTML = (j, n) => (n <= 3 ? ['x', 'y', 'z'][j] : `x<sub>${j + 1}</sub>`);
 
   function tablaMatriz(M, opc = {}) {
     const { separador = null, encabezados = null, filas = [], pivotes = [] } = opc;
@@ -55,17 +55,17 @@
 
   const seccion = (titulo, contenido) => `<section class="seccion"><h3>${titulo}</h3>${contenido}</section>`;
 
-  function expresionHTML(e) {
-    if (e.libre) return `${variableHTML(e.variable)} es libre (puede tomar cualquier valor real)`;
+  function expresionHTML(e, n) {
+    if (e.libre) return `${variableHTML(e.variable, n)} es libre (puede tomar cualquier valor real)`;
     let s = '';
     if (!e.constante.esCero() || e.terminos.length === 0) s = fracHTML(e.constante);
     for (const t of e.terminos) {
       const a = t.coef.abs();
       const c = a.esUno() ? '' : (a.esEntera() ? fracHTML(a) : `(${fracHTML(a)})`);
       const neg = t.coef.esNegativa();
-      s += s === '' ? `${neg ? '−' : ''}${c}${variableHTML(t.variable)}` : ` ${neg ? '−' : '+'} ${c}${variableHTML(t.variable)}`;
+      s += s === '' ? `${neg ? '−' : ''}${c}${variableHTML(t.variable, n)}` : ` ${neg ? '−' : '+'} ${c}${variableHTML(t.variable, n)}`;
     }
-    return `${variableHTML(e.variable)} = ${s}`;
+    return `${variableHTML(e.variable, n)} = ${s}`;
   }
 
   function textosActuales(cont) {
@@ -185,7 +185,7 @@
     const n = r.numIncognitas;
     const opc = {
       separador: n,
-      encabezados: Array.from({ length: n }, (_, j) => variableHTML(j)).concat('b')
+      encabezados: Array.from({ length: n }, (_, j) => variableHTML(j, n)).concat('b')
     };
 
     let h = seccion('1. Matriz aumentada inicial [A | b]', tablaMatriz(r.inicial, opc));
@@ -201,17 +201,17 @@
     if (r.tipo === 'unica') {
       concl = `<div class="mensaje ok"><strong>Solución única</strong>
         <p>Hay un pivote en cada columna de incógnitas (rango = ${n}), así que el sistema tiene exactamente una solución:</p>
-        <ul class="solucion">${r.solucion.map((v, j) => `<li>${variableHTML(j)} = ${fracHTML(v)}</li>`).join('')}</ul></div>`;
+        <ul class="solucion">${r.solucion.map((v, j) => `<li>${variableHTML(j, n)} = ${fracHTML(v)}</li>`).join('')}</ul></div>`;
     } else if (r.tipo === 'infinitas') {
-      const libres = r.libres.map(variableHTML).join(', ');
+      const libres = r.libres.map(j => variableHTML(j, n)).join(', ');
       concl = `<div class="mensaje aviso"><strong>Infinitas soluciones</strong>
         <p>El sistema es compatible pero rango = ${r.rangoA} &lt; ${n} incógnitas, por lo que hay
         ${n - r.rangoA} variable${n - r.rangoA > 1 ? 's' : ''} libre${n - r.rangoA > 1 ? 's' : ''}: ${libres}.</p>
         <p>Las demás variables se expresan en función de ellas:</p>
-        <ul class="solucion" style="flex-direction:column">${r.expresiones.map(e => `<li>${expresionHTML(e)}</li>`).join('')}</ul></div>`;
+        <ul class="solucion" style="flex-direction:column">${r.expresiones.map(e => `<li>${expresionHTML(e, n)}</li>`).join('')}</ul></div>`;
     } else {
       const i = r.filaInconsistente;
-      const ceros = Array.from({ length: n }, (_, j) => `0${variableHTML(j)}`).join(' + ');
+      const ceros = Array.from({ length: n }, (_, j) => `0${variableHTML(j, n)}`).join(' + ');
       concl = `<div class="mensaje error"><strong>Sin solución (sistema inconsistente)</strong>
         <p>La fila ${i + 1} quedó como ${ceros} = ${fracHTML(r.valor)}, es decir, <b>0 = ${fracHTML(r.valor)}</b>.</p>
         <p>Eso es imposible porque ${fracHTML(r.valor)} ≠ 0: ningún valor de las incógnitas cumple esa ecuación.
@@ -321,7 +321,7 @@
       return m && n ? { filas: m, cols: n + 1 } : null;
     },
     separador: cols => cols - 1,
-    encabezado: (j, cols) => (j === cols - 1 ? 'b' : variableHTML(j)),
+    encabezado: (j, cols) => (j === cols - 1 ? 'b' : variableHTML(j, cols - 1)),
     ejemplos: EJEMPLOS_SISTEMAS,
     aplicarEjemplo(ej) { $('s-filas').value = ej.m; $('s-cols').value = ej.n; },
     resolver: renderSistema
