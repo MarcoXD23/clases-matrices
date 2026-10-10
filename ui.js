@@ -42,11 +42,11 @@
 
   function listaPasos(pasos, opcTabla) {
     return '<ol class="pasos">' + pasos.map((p, k) => `
-      <li class="paso">
+      <li class="paso ${p.tipo}">
         <div class="paso-cab">
           <span class="paso-num">Paso ${k + 1}</span>
           <code class="notacion">${p.notacion}</code>
-          <span class="etiqueta">${NOMBRE_TIPO[p.tipo]}</span>
+          <span class="etiqueta ${p.tipo}">${NOMBRE_TIPO[p.tipo]}</span>
         </div>
         <p class="explicacion">${p.explicacion}</p>
         ${tablaMatriz(p.matriz, { ...opcTabla, filas: p.filas, pivotes: [p.pivote] })}
