@@ -16,7 +16,8 @@
     return f.esEntera() && !f.esNegativa() ? fracHTML(f) : `(${fracHTML(f)})`;
   }
 
-  const variableHTML = (j, n) => (n <= 3 ? ['x', 'y', 'z'][j] : `x<sub>${j + 1}</sub>`);
+  const LETRAS = ['x', 'y', 'z'];
+  const variableHTML = (j, n) => (n <= LETRAS.length ? LETRAS[j] : `x<sub>${j + 1}</sub>`);
 
   function tablaMatriz(M, opc = {}) {
     const { separador = null, encabezados = null, filas = [], pivotes = [] } = opc;
